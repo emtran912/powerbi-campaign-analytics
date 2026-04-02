@@ -1,0 +1,15 @@
+# Power BI cache files
+*.pbix.tmp
+*.pbix~
+
+# Backup files
+*.pbix.bak
+*Backup.pbix
+
+# Local data cache
+*.abf
+
+# Workspace files.vs/.vscode/settings.json
+
+# OS files.DS_Store
+Thumbs.db
