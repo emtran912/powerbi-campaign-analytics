@@ -9,7 +9,19 @@
 # Local data cache
 *.abf
 
-# Workspace files.vs/.vscode/settings.json
+# Credentials & Config.env
+config.ini
+credentials.json
+Config.pq
+*.parameters.json
 
-# OS files.DS_Store
+# Workspace files.vs/.vscode/settings.json
+*.csv
+*.xlsx
+*.json
+*.pbix
+data/
+raw_data/
+
+# System files.DS_Store
 Thumbs.db
