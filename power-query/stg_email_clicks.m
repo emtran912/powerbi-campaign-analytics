@@ -55,9 +55,6 @@ let
     ExcludeKeywords =
         {"keyword1", "keyword2", "keyword3", "keyword4", "keyword5"},
 
-    NewAlumniKeywords =
-        {"keyword1", "keyword2", "keyword3", "keyword4", "keyword5"},
-
     // 4. Filter rows
     FilteredRows =
         Table.SelectRows(

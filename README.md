@@ -13,7 +13,7 @@ in Power BI. Created to practice Git/GitHub workflow and demonstrate data transf
 
 ## Data Model Changes
 - Created dim_Campaign dimension table
-- Standardized campaign names using key matching
+- Standardised campaign names using key matching
 - Established relationships via Campaign ID
 
 ## Queries

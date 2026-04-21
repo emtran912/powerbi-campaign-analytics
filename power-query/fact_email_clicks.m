@@ -6,7 +6,7 @@ let
         Table.SelectColumns(
             Source,
             {
-                "lbsno",
+                "recordid",
                 "Click_Date",
                 "Click_Date_Date",
                 "Click_Date_Time",

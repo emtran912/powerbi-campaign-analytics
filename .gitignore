@@ -1,13 +1,19 @@
-# Power BI cache files
+# Power BI files
+*.pbix
 *.pbix.tmp
 *.pbix~
-
-# Backup files
 *.pbix.bak
 *Backup.pbix
 
 # Local data cache
 *.abf
+
+# Data files
+*.csv
+*.xlsx
+*.json
+data/
+raw_data/
 
 # Credentials & Config.env
 config.ini
@@ -16,12 +22,6 @@ Config.pq
 *.parameters.json
 
 # Workspace files.vs/.vscode/settings.json
-*.csv
-*.xlsx
-*.json
-*.pbix
-data/
-raw_data/
 
-# System files.DS_Store
+# OS files.DS_Store
 Thumbs.db

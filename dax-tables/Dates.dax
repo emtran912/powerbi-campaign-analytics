@@ -1,0 +1,38 @@
+/* 
+Date Dimension Table
+Created: 2026-04-02
+Purpose: Calendar table for time-based analysis
+Range: 2020-01-01 to 2026-12-31
+*/
+
+Dates = 
+ADDCOLUMNS(
+    CALENDAR(DATE(2023, 1, 1), DATE(2028, 12, 31)),
+    "Year", YEAR([Date]),
+    "Month Year Num", YEAR([Date]) & FORMAT([Date],"MMM"),
+    "Month Num", MONTH([Date]),
+    "Month", FORMAT([Date], "MMM"),
+    "Quarter Num", FORMAT([Date], "Q"),
+    "Quarter", "Q" & FORMAT([Date], "Q"),
+    "Day", DAY([Date]),
+    "Week", "Week " & FORMAT([Date], "WW"),
+    // Academic Quarter
+    "Academic Quarter", 
+        SWITCH(
+            TRUE(),
+            MONTH([Date]) >= 8 && MONTH([Date]) <= 10, "Q1",
+            MONTH([Date]) >= 11 || MONTH([Date]) = 1, "Q2",
+            MONTH([Date]) >= 2 && MONTH([Date]) <= 4, "Q3",
+            MONTH([Date]) >= 5 && MONTH([Date]) <= 7, "Q4"
+        ),
+    // Academic Year (e.g., 2025-2026 for Sep 2025)
+    "Academic Year",
+        VAR m = MONTH([Date])
+        VAR y = YEAR([Date])
+        RETURN
+            IF(
+                m >= 8,
+                y & "-" & FORMAT(y+1, "0000"),
+                (y-1) & "-" & FORMAT(y, "0000")
+            )
+)
