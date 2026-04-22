@@ -1,0 +1,5 @@
+# Mark m. file as Power Query M language
+* .m linguist-language=m
+
+# Mark.dax files as DAX
+*.dax linguist-language=DAX
