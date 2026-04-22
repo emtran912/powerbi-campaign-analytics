@@ -2,4 +2,8 @@
 * .m linguist-language=m
 
 # Mark.dax files as DAX
-*.dax linguist-language=DAX
+*.dax linguist-language=SQL
+
+# Exclude certain files from language stats
+*.json linguist-vendored
+*.md linguist-documentation
