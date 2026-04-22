@@ -1,0 +1,107 @@
+// ============================================
+// CAMPAIGN ANALYTICS MEASURES
+// ============================================
+
+// --------------------------------------------
+// Base Metrics
+// --------------------------------------------
+
+Total Campaigns = COUNTROWS(fact_campaign)
+
+Total Targeted = SUM(fact_campaign[Targeted])
+
+Total Sent = SUM(fact_campaign[Sent])
+
+Total Delivered = SUM(fact_campaign[Delivered])
+
+Total Opened = SUM(fact_campaign[Opened])
+
+Total Clicked = SUM(fact_campaign[Clicked])
+
+Total Bounced = SUM(fact_campaign[Bounced])
+
+Total Unsubscribed = SUM(fact_campaign[Unsubscribed])
+
+Unique Clickers = 
+CALCULATE(
+    DISTINCTCOUNT(fact_email_clicks[recordid]),
+    fact_email_clicks[Clicked] > 0
+)
+
+// --------------------------------------------
+// Performance Rates
+// --------------------------------------------
+
+Delivery Rate = DIVIDE([Total Delivered], [Total Sent], 0)
+
+Bounce Rate = DIVIDE([Total Bounced], [Total Sent], 0)
+
+Open Rate = DIVIDE([Total Opened], [Total Delivered], 0)
+
+Click Through Rate = DIVIDE([Total Clicked], [Total Delivered], 0)
+
+Click to Open Rate = DIVIDE([Total Clicked], [Total Opened], 0)
+
+Unsubscribe Rate = DIVIDE([Total Unsubscribed], [Total Delivered], 0)
+
+Error Rate = DIVIDE([Total Errors], [Total Sent], 0)
+
+// --------------------------------------------
+// Time Intelligence - Previous Periods
+// --------------------------------------------
+
+Unique Clickers PQ = CALCULATE([Unique Clickers], DATEADD(Dates[Date], -1, QUARTER))
+
+Unique Clickers PY = CALCULATE([Unique Clickers], DATEADD(Dates[Date], -1, YEAR))
+
+Open Rate PQ = CALCULATE([Open Rate], DATEADD(Dates[Date], -1, QUARTER))
+
+Open Rate PY = CALCULATE([Open Rate], DATEADD(Dates[Date], -1, YEAR))
+
+Click Through Rate PQ = CALCULATE([Click Through Rate], DATEADD(Dates[Date], -1, QUARTER))
+
+Click Through Rate PY = CALCULATE([Click Through Rate], DATEADD(Dates[Date], -1, YEAR))
+
+Click to Open Rate PQ = CALCULATE([Click to Open Rate], DATEADD(Dates[Date], -1, QUARTER))
+
+Click to Open Rate PY = CALCULATE([Click to Open Rate], DATEADD(Dates[Date], -1, YEAR))
+
+Bounce Rate PQ = CALCULATE([Bounce Rate], DATEADD(Dates[Date], -1, QUARTER))
+
+Bounce Rate PY = CALCULATE([Bounce Rate], DATEADD(Dates[Date], -1, YEAR))
+
+Unsubscribe Rate PQ = CALCULATE([Unsubscribe Rate], DATEADD(Dates[Date], -1, QUARTER))
+
+Unsubscribe Rate PY = CALCULATE([Unsubscribe Rate], DATEADD(Dates[Date], -1, YEAR))
+
+// --------------------------------------------
+// QoQ % Change
+// --------------------------------------------
+
+Unique Clickers QoQ % = DIVIDE([Unique Clickers] - [Unique Clickers PQ], [Unique Clickers PQ], BLANK())
+
+Open Rate QoQ % = DIVIDE([Open Rate] - [Open Rate PQ], [Open Rate PQ], BLANK())
+
+Click Through Rate QoQ % = DIVIDE([Click Through Rate] - [Click Through Rate PQ], [Click Through Rate PQ], BLANK())
+
+Click to Open Rate QoQ % = DIVIDE([Click to Open Rate] - [Click to Open Rate PQ], [Click to Open Rate PQ], BLANK())
+
+Bounce Rate QoQ % = DIVIDE([Bounce Rate] - [Bounce Rate PQ], [Bounce Rate PQ], BLANK())
+
+Unsubscribe Rate QoQ % = DIVIDE([Unsubscribe Rate] - [Unsubscribe Rate PQ], [Unsubscribe Rate PQ], BLANK())
+
+// --------------------------------------------
+// YoY % Change
+// --------------------------------------------
+
+Unique Clickers YoY % = DIVIDE([Unique Clickers] - [Unique Clickers PY], [Unique Clickers PY], BLANK())
+
+Open Rate YoY % = DIVIDE([Open Rate] - [Open Rate PY], [Open Rate PY], BLANK())
+
+Click Through Rate YoY % = DIVIDE([Click Through Rate] - [Click Through Rate PY], [Click Through Rate PY], BLANK())
+
+Click to Open Rate YoY % = DIVIDE([Click to Open Rate] - [Click to Open Rate PY], [Click to Open Rate PY], BLANK())
+
+Bounce Rate YoY % = DIVIDE([Bounce Rate] - [Bounce Rate PY], [Bounce Rate PY], BLANK())
+
+Unsubscribe Rate YoY % = DIVIDE([Unsubscribe Rate] - [Unsubscribe Rate PY], [Unsubscribe Rate PY], BLANK())

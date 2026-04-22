@@ -18,10 +18,11 @@ in Power BI. Created to practice Git/GitHub workflow and demonstrate data transf
 
 ## Queries
 
+### Power Query Transformations (`power-query/`)
+
 **Dimension Tables:**
-- `dim_campaign.m` - Campaign dimension with standardized keys and categories
+- `dim_campaign.m` - Campaign dimension with standardised keys and categories
 - `dim_person.m` - Person dimension
-- `Dates.dax` - Date dimension (DAX calculated table)
 
 **Fact Tables:**
 - `fact_campaign.m` - Campaign-level performance metrics
@@ -33,6 +34,19 @@ in Power BI. Created to practice Git/GitHub workflow and demonstrate data transf
 - `row_count_check.m` - Data validation checks
 
 *All `.m` files are Power Query (M language) transformations located in the `power-query/` folder.*
+
+### DAX (`dax/`)
+
+**Calculated Tables:**
+- `Dates.dax` - Date dimension with year, month, quarter, and weekday attributes
+
+**Measures:**
+- `measures.dax` - Campaign analytics measures including:
+  - Base metrics (campaigns, delivered, opened, clicked, bounced, unsubscribed, unique clickers)
+  - Performance rates (delivery rate, open rate, CTR, CTOR, bounce rate, unsubscribe rate)
+  - Time intelligence (QoQ and YoY % changes for all key metrics)
+
+*All `.dax` files contain DAX formulas for Power BI data model.*
 
 ## Setup
 1. Open the.pbix file in Power BI Desktop
