@@ -3,12 +3,12 @@
 ## Overview
 Power BI report for analysing campaign performance across email and social media channels.
 
-> **Note**: All institutional-specific details have been anonymized. 
+> **Note**: All institutional-specific details have been anonymised. 
 > Code patterns and logic are generic and applicable to any email campaign analytics workflow.
 
 ## Dashboard Preview
 
-![Campaign Analytics Dashboard](images\email_overview_dashboard.png)
+![Campaign Analytics Dashboard](images/email_overview_dashboard.png)
 
 ### Key Features
 
@@ -18,7 +18,7 @@ Power BI report for analysing campaign performance across email and social media
 - **Quality metrics**: Bounce rate and unsubscribe rate monitoring
 
 **Time Intelligence:**
-- Quarter-over-Quarter (QoQ) percentage changes for all metrics
+- Quarter-over-Quarter (QoQ) and Year-over-Year (YoY) percentage changes for all metrics
 - Monthly trend breakdowns
 - Academic year and quarter filtering
 
