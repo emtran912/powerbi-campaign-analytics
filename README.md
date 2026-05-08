@@ -4,6 +4,8 @@ Power BI report for analysing email and social media campaign performance.
 
 > **Note**: All organisation‑specific details have been anonymised. Logic and patterns are generic.
 
+> **Status**: The social media dashboard is currently under development. Further updates and metrics will be added soon.
+
 ## Dashboard Preview
 
 ![Campaign Analytics Dashboard](images/email_overview_dashboard.png)
