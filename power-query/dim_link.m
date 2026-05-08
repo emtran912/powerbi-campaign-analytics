@@ -3,7 +3,7 @@ let
     // 1. Source: generic staging table
     // ------------------------------------------------------------------
     Source =
-        stg_click_events,
+        stg_email_clicks,
 
     // ------------------------------------------------------------------
     // 2. Retain only link-level fields (dimension grain)

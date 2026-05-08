@@ -1,100 +1,69 @@
 # Campaign Analytics Power BI Report
 
-## Overview
-Power BI report for analysing campaign performance across email and social media channels.
+Power BI report for analysing email and social media campaign performance.
 
-> **Note**: All institutional-specific details have been anonymised. 
-> Code patterns and logic are generic and applicable to any email campaign analytics workflow.
+> **Note**: All organisation‑specific details have been anonymised. Logic and patterns are generic.
 
 ## Dashboard Preview
 
 ![Campaign Analytics Dashboard](images/email_overview_dashboard.png)
 
-### Key Features
+## What’s Included
 
-**Performance Metrics:**
-- **CTOR & CTR**: Click-to-open rate and click-through rate with trend analysis
-- **Engagement tracking**: Unique clickers and open rates
-- **Quality metrics**: Bounce rate and unsubscribe rate monitoring
+### Metrics
+- CTR, CTOR, open, bounce and unsubscribe rates
+- Unique clickers and delivery metrics
+- Quarter-on-Quarter (QoQ) and Year-on-Year (YoY) % change across all measures
 
-**Time Intelligence:**
-- Quarter-over-Quarter (QoQ) and Year-over-Year (YoY) percentage changes for all metrics
-- Monthly trend breakdowns
-- Academic year and quarter filtering
-
-**Campaign Analysis:**
-- Performance by individual campaign
-- Category breakdown (Events, Alumni Newsletters, Administrative, Appeals)
-- Campaign volume tracking
+### Analysis
+- Campaign‑level performance and trends
+- Monthly, quarterly and academic‑year views
+- Category breakdown (e.g. Events, Appeals, Administrative)
 
 ## Project Structure
 
-### Power Query Transformations (`power-query/`)
+### Power Query (`power-query/`)
+- **Staging**: `stg_email_clicks.m`
+- **Dimensions**: `dim_campaign.m`, `dim_person.m`, `dim_link.m`,
+- **Facts**: `fact_campaign.m`, `fact_email_clicks.m`, `fact_social_media.m`
+- **Utilities**: `row_count_check.m`
 
-## About
-Power Query (M) and DAX transformations for cleaning and modeling email campaign data 
-in Power BI. Created to practice Git/GitHub workflow and demonstrate data transformation skills.
-
-## Data Model Changes
-- Created dim_Campaign dimension table
-- Standardised campaign names using key matching
-- Established relationships via Campaign ID
-
-## Queries
-
-### Power Query Transformations (`power-query/`)
-
-**Dimension Tables:**
-- `dim_campaign.m` - Campaign dimension with standardised keys and categories
-- `dim_person.m` - Person dimension
-
-**Fact Tables:**
-- `fact_campaign.m` - Campaign-level performance metrics
-- `fact_email_clicks.m` - Individual click-level tracking
-- `fact_social_media.m` - Social media engagement data
-
-**Staging & Utilities:**
-- `stg_email_clicks.m` - Email clicks staging transformation
-- `row_count_check.m` - Data validation checks
-
-*All `.m` files are Power Query (M language) transformations located in the `power-query/` folder.*
+All `.m` files are Power Query (M) transformations.
 
 ### DAX (`dax/`)
+- `Dates.dax` – Date dimension
+- `measures.dax` – Core metrics, rates and time intelligence
 
-**Calculated Tables:**
-- `Dates.dax` - Date dimension with year, month, quarter, and weekday attributes
+## Data Model
+- Campaign dimension with standardised naming
+- Link dimension table with link categories
+- Person table for demographic analysis
+- Relationships built on Campaign ID
+- Separate fact tables for email and social engagement
+- Staging table for fact_email_clicks and dim_link, using foldable query to enable date parameters for incremental refreshes
 
-**Measures:**
-- `measures.dax` - Campaign analytics measures including:
-  - Base metrics (campaigns, delivered, opened, clicked, bounced, unsubscribed, unique clickers)
-  - Performance rates (delivery rate, open rate, CTR, CTOR, bounce rate, unsubscribe rate)
-  - Time intelligence (QoQ and YoY % changes for all key metrics)
+## Key Metrics
 
-*All `.dax` files contain DAX formulas for Power BI data model.*
+| Metric | Description |
+|------|-------------|
+| CTR | % of delivered emails clicked |
+| CTOR | % of openers who clicked |
+| Open Rate | % of delivered emails opened |
+| Bounce Rate | % of emails bounced |
+| Unsubscribe Rate | % of recipients unsubscribing |
+| Unique Clickers | Distinct recipients who clicked |
 
-## Key Metrics Explained
+## Tech Stack
+- Power BI Desktop
+- Power Query (M)
+- DAX
+- SQL Server
 
-| Metric | Definition | Business Value |
-|--------|------------|----------------|
-| **CTOR** | Click-to-Open Rate: % of email openers who clicked | Measures content relevance and call-to-action effectiveness |
-| **CTR** | Click-Through Rate: % of delivered emails clicked | Overall campaign engagement indicator |
-| **Open Rate** | % of delivered emails opened | Subject line and sender reputation effectiveness |
-| **Bounce Rate** | % of sent emails that bounced | Email list quality indicator |
-| **Unsubscribe Rate** | % of delivered emails resulting in unsubscribe | Content relevance and frequency appropriateness |
-| **Unique Clickers** | Distinct count of recipients who clicked | Actual audience reach |
+## Configuration
 
-## Technologies Used
-
-- **Power BI Desktop** - Data visualization and dashboard
-- **Power Query (M)** - ETL and data transformation
-- **DAX** - Calculated measures and time intelligence
-- **SQL Server** - Source data extraction
-
-## Configuration Required
-
-Before running, create a `Config.pq` file with:
-- `ServerName`: Your SQL Server address
-- `DatabaseName`: Target database name
-- `ExcludeKeywords`: List of campaign keywords to filter out
-- `NewCustomerKeywords`: Keywords identifying new customer campaigns
-- `CampaignPrefix`: Campaign naming prefix
+Create a `Config.pq` file with:
+- `ServerName`
+- `DatabaseName`
+- `CampaignPrefix`
+- `ExcludeKeywords`
+- `NewCustomerKeywords`
