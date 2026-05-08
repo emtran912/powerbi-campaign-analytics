@@ -1,115 +1,164 @@
 let
-
-    // 1. Source: SQL query
+    // ------------------------------------------------------------
+    // 1. Source: SQL database (no native query)
+    // ------------------------------------------------------------
     Source =
         Sql.Database(
             ServerName,      // Parameter
-            DatabaseName,    // Parameter
-            [
-                Query = "
-                    USE DatabaseName;
-
-                    SELECT DISTINCT
-                        per.recordid,
-                        click.clickedURL,
-                        click.clickedURLName,
-                        click.CampaignName,
-                        click.EventDate AS Click_Date,
-                        click.CampaignID
-                    FROM table_person AS per
-                    INNER JOIN table_program AS prg
-                        ON prg.recordid = per.recordid
-                    LEFT JOIN table_preferences AS eip
-                        ON eip.recordid = per.recordid
-                    LEFT JOIN table_clickstats AS click
-                        ON click.Email = eip.preferredemailaddress
-                    WHERE
-                        click.email IS NOT NULL
-                        AND (
-                            prg.status = 'Status1'
-                            OR prg.status = 'Status2'
-                            OR prg.status = 'Status3'
-                            OR per.flag1 = 'Y'
-                            OR per.flag2 = 'Y'
-                        )
-                        AND click.campaignname LIKE 'prefix%'
-                        AND click.EventDate BETWEEN '2024-08-01' AND '2027-12-31'
-                    ORDER BY Click_Date DESC
-                "
-            ]
+            DatabaseName     // Parameter
         ),
 
-    // 2. Helper function (case-insensitive keyword matching)
-    ContainsAny =
-        (text as nullable text, keywords as list) =>
-            text <> null
-                and List.AnyTrue(
-                    List.Transform(
-                        keywords,
-                        each Text.Contains(text, _, Comparer.OrdinalIgnoreCase)
-                    )
-                ),
+    PersonTable = Source{[Schema="dbo", Item="table_person"]}[Data],
+    ProgrammeTable = Source{[Schema="dbo", Item="table_program"]}[Data],
+    PreferencesTable = Source{[Schema="dbo", Item="table_preferences"]}[Data],
+    ClicksRaw = Source{[Schema="dbo", Item="table_clickstats"]}[Data],
 
-    // 3. Configuration lists
+    // ------------------------------------------------------------
+    // 2. Incremental refresh filter (must be early)
+    // ------------------------------------------------------------
+    Clicks =
+        Table.SelectRows(
+            ClicksRaw,
+            each [EventDate] >= RangeStart and [EventDate] < RangeEnd
+        ),
 
-    ExcludeKeywords =
-        {"keyword1", "keyword2", "keyword3", "keyword4", "keyword5"},
+    // ------------------------------------------------------------
+    // 3. Filter click events (foldable)
+    // ------------------------------------------------------------
+    FilteredClicks =
+        Table.SelectRows(
+            Clicks,
+            each
+                [Email] <> null
+                and Text.StartsWith([CampaignName], "prefix")
+        ),
 
-    // 4. Filter rows
+    // ------------------------------------------------------------
+    // 4. Merge reference tables (foldable joins)
+    // ------------------------------------------------------------
+    MergePreferences =
+        Table.NestedJoin(
+            FilteredClicks,
+            {"Email"},
+            PreferencesTable,
+            {"PreferredEmailAddress"},
+            "Preferences",
+            JoinKind.LeftOuter
+        ),
+
+    ExpandPreferences =
+        Table.ExpandTableColumn(
+            MergePreferences,
+            "Preferences",
+            {"RecordId"}
+        ),
+
+    MergePerson =
+        Table.NestedJoin(
+            ExpandPreferences,
+            {"RecordId"},
+            PersonTable,
+            {"RecordId"},
+            "Person",
+            JoinKind.Inner
+        ),
+
+    ExpandPerson =
+        Table.ExpandTableColumn(
+            MergePerson,
+            "Person",
+            {"Flag1", "Flag2"}
+        ),
+
+    MergeProgramme =
+        Table.NestedJoin(
+            ExpandPerson,
+            {"RecordId"},
+            ProgrammeTable,
+            {"RecordId"},
+            "Programme",
+            JoinKind.Inner
+        ),
+
+    ExpandProgramme =
+        Table.ExpandTableColumn(
+            MergeProgramme,
+            "Programme",
+            {"Status"}
+        ),
+
+    // ------------------------------------------------------------
+    // 5. Business rule filters
+    // ------------------------------------------------------------
     FilteredRows =
         Table.SelectRows(
-            Source,
+            ExpandProgramme,
             each
-                [CampaignName] <> null
-                and not ContainsAny([CampaignName], ExcludeKeywords)
+                ([Status] = "Status1"
+                or [Status] = "Status2"
+                or [Status] = "Status3"
+                or [Flag1] = "Y"
+                or [Flag2] = "Y")
         ),
 
-    // 5. Add derived columns
-    AddColumns =
+    // ------------------------------------------------------------
+    // 6. Derived columns (non-folding beyond this point)
+    // ------------------------------------------------------------
+    AddClickDate =
         Table.AddColumn(
-            Table.AddColumn(
-                Table.AddColumn(
-                    FilteredRows,
-                    "Click_Date_Date",
-                    each Date.From([Click_Date]),
-                    type date
-                ),
-                "Click_Date_Time",
-                each Time.From([Click_Date]),
-                type time
-            ),
+            FilteredRows,
+            "Click_Date_Date",
+            each Date.From([EventDate]),
+            type date
+        ),
+
+    AddClickTime =
+        Table.AddColumn(
+            AddClickDate,
+            "Click_Date_Time",
+            each Time.From([EventDate]),
+            type time
+        ),
+
+    AddCleanedLink =
+        Table.AddColumn(
+            AddClickTime,
             "Cleaned_Link_URL",
             each
                 let
-                    link = [clickedURLName],
-                    url = [clickedURL],
-                    linkLower = Text.Lower(link),
-                    urlLower = Text.Lower(url)
+                    linkText = try Text.From([ClickedUrlName]) otherwise null,
+                    linkUrl = try Text.From([ClickedUrl]) otherwise null,
+
+                    linkLower =
+                        if linkText <> null then Text.Lower(linkText) else null,
+                    urlLower =
+                        if linkUrl <> null then Text.Lower(linkUrl) else null,
+
+                    lastHyphenPos =
+                        if linkText <> null then
+                            Text.PositionOf(linkText, "-", Occurrence.Last)
+                        else
+                            -1
                 in
-                    // URL cleaning logic based on pattern matching
-                    if link = "Link Pattern 1" or link = "Link Pattern 2" then
-                        "Cleaned Link 1"
-                    else if Text.Contains(linkLower, "campaign-keyword-1") then
-                        "Campaign 1"
-                    else if Text.Contains(urlLower, "campaign-keyword-2") then
-                        "Call to Action 1"
-                    else if Text.Contains(urlLower, "update-keyword") then
-                        "Update Contact Details"
-                    else if Text.Contains(urlLower, "campaign-keyword-3") then
-                        "Campaign 2"
-                    else if Text.Contains(urlLower, "campaign-keyword-4") then
-                        "Campaign 3"
+                    if linkLower <> null
+                        and Text.Contains(linkLower, "pattern-one") then
+                        "Generic Link Label 1"
+
+                    else if urlLower <> null
+                        and Text.Contains(urlLower, "call-to-action") then
+                        "Generic Call to Action"
+
+                    else if urlLower <> null
+                        and Text.Contains(urlLower, "update-details") then
+                        "Update contact details"
+
+                    else if linkText <> null and lastHyphenPos >= 0 then
+                        Text.Trim(Text.Start(linkText, lastHyphenPos))
+
                     else
-                        // Generic text cleaning: remove suffix after last hyphen
-                        let
-                            lastHyphenPos =
-                                Text.PositionOf(link, "-", Occurrence.Last)
-                        in
-                            if lastHyphenPos >= 0 then
-                                Text.Trim(Text.Start(link, lastHyphenPos))
-                            else
-                                link
+                        linkText,
+            type nullable text
         )
 
 in
-    AddColumns
+    AddCleanedLink
